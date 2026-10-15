@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { player, fmt } from '../lib/bridge/player.svelte';
+  import { t } from '../lib/i18n.svelte.ts';
   let { waveSpeed = 0.55, waveAmp = 3.0 }: { waveSpeed?: number; waveAmp?: number } = $props();
 
   const H = 18;
@@ -12,8 +13,9 @@
   let w = $state(0);
   let hovering = $state(false);
 
-  let pathD = $state('');
-  let lineX = $state(0);
+  let pathEl: SVGPathElement | undefined = $state();
+  let lineEl: SVGLineElement | undefined = $state();
+  let dotEl: SVGCircleElement | undefined = $state();
 
   let raf = 0;
   let amp = 0;
@@ -25,7 +27,6 @@
 
   const dur = $derived(player.track?.durationSecs ?? 0);
 
-  // потолок fps из настроек; 0 = всегда 60
   const uiFps = $derived((window as any).__pearSettings?.uiFps ?? 60);
   const frameMin = $derived(uiFps > 0 ? 1000 / uiFps : 0);
 
@@ -74,27 +75,36 @@
     } else {
       d = `M 0 ${mid} L ${xEnd.toFixed(1)} ${mid}`;
     }
-    pathD = d;
-    lineX = xEnd;
+    pathEl?.setAttribute('d', d);
+    lineEl?.setAttribute('x1', String(xEnd));
+    dotEl?.setAttribute('cx', String(xEnd));
   }
 
   function frame(t: number) {
     const dt = prevT ? Math.min(0.05, (t - prevT) / 1000) : 0.016;
     prevT = t;
 
-    const est = player.estPos;
-    player.pos = est;
-    const prog = dur > 0 ? Math.min(1, est / dur) : 0;
+    if (player.track) {
+      const est = player.estPos;
+      player.pos = est;
+      const prog = dur > 0 ? Math.min(1, est / dur) : 0;
 
-    const target = player.playing && dur > 0 ? waveAmp : 0;
-    amp += (target - amp) * (1 - Math.exp(-dt * 12));
-    if (!reduced && player.playing && dur > 0) phase += dt * waveSpeed;
+      const target = player.playing && dur > 0 ? waveAmp : 0;
+      amp += (target - amp) * (1 - Math.exp(-dt * 12));
+      if (!reduced && player.playing && dur > 0) phase += dt * waveSpeed;
 
-    // перерисовка path не чаще frameMin; тайм-код живёт на полном кадре
-    const now = performance.now();
-    if (now - lastBuild >= frameMin) {
-      lastBuild = now;
-      rebuild(prog);
+      const now = performance.now();
+      if (now - lastBuild >= frameMin) {
+        lastBuild = now;
+        rebuild(prog);
+      }
+    } else {
+      amp = 0;
+      const now = performance.now();
+      if (now - lastBuild >= frameMin) {
+        lastBuild = now;
+        rebuild(0);
+      }
     }
 
     if (!paused) {
@@ -156,18 +166,18 @@
         </svg>
       </div>
       <div class="txt">
-        <span class="t">тишина…</span>
-        <span class="a">найди что-нибудь сверху</span>
+        <span class="t">{t('player.silence')}</span>
+        <span class="a">{t('player.silenceHint')}</span>
       </div>
     {/if}
   </div>
 
   <div class="center">
     <div class="controls">
-      <button class="cbtn tonal" title="предыдущий" onclick={() => player.prev()}>
+      <button class="cbtn tonal" title={t('player.prev')} onclick={() => player.prev()}>
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
       </button>
-      <button class="cbtn play" title={player.playing ? 'пауза' : 'слушать'}
+      <button class="cbtn play" title={player.playing ? t('player.pause') : t('player.play')}
               onclick={() => player.playPause()}>
         {#key player.playing}
           <span class="picon">
@@ -179,7 +189,7 @@
           </span>
         {/key}
       </button>
-      <button class="cbtn tonal" title="Следующий" onclick={() => player.next()}>
+      <button class="cbtn tonal" title={t('player.next')} onclick={() => player.next()}>
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
       </button>
     </div>
@@ -190,17 +200,17 @@
            onpointerenter={() => (hovering = true)}
            onpointerleave={() => (hovering = false)}
            onkeydown={keySeek} tabindex="0"
-           role="slider" aria-label="позиция"
+           role="slider" aria-label={t('player.position')}
            aria-valuemin="0" aria-valuemax={dur} aria-valuenow={player.pos}>
         <svg width={w} height={H} viewBox={`0 0 ${w} ${H}`}>
-          <line x1={lineX} y1={H / 2} x2={w} y2={H / 2}
+          <line bind:this={lineEl} x1="0" y1={H / 2} x2={w} y2={H / 2}
                 stroke="var(--md-outline-variant)" stroke-width={THICK}
                 stroke-linecap="round" opacity="0.5" />
-          <path d={pathD} fill="none"
+          <path bind:this={pathEl} fill="none"
                 stroke="var(--md-primary)" stroke-width={THICK}
                 stroke-linecap="round" />
           {#if hovering && dur > 0}
-            <circle cx={lineX} cy={H / 2} r="5" fill="var(--md-primary)" />
+            <circle bind:this={dotEl} cy={H / 2} r="5" fill="var(--md-primary)" />
           {/if}
         </svg>
       </div>
@@ -209,7 +219,7 @@
   </div>
 
   <div class="side">
-    <button class="cbtn" title={player.volume === 0 ? 'включить звук' : 'выключить звук'}
+    <button class="cbtn" title={player.volume === 0 ? t('player.unmute') : t('player.mute')}
             onclick={() => player.toggleMute()}>
       {#if player.volume === 0}
         <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51A8.8 8.8 0 0 0 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06a8.99 8.99 0 0 0 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
@@ -220,7 +230,7 @@
     <input class="vol" type="range" min="0" max="1" step="0.01"
            style={`--fill: ${Math.round(player.volume * 100)}%`}
            value={player.volume}
-           aria-label="громкость"
+           aria-label={t('player.volume')}
            oninput={(e) => player.setVolume(Number((e.target as HTMLInputElement).value))} />
   </div>
 </footer>

@@ -7,6 +7,7 @@
   import TitleBar from './components/TitleBar.svelte';
   import PlayerBar from './components/PlayerBar.svelte';
   import CookieBg from './components/CookieBg.svelte';
+  import { t, locale, setLocale } from './lib/i18n.svelte.ts';
 
   let q = $state('');
   let view = $state<'search' | 'queue' | 'playlists' | 'settings'>('search');
@@ -83,7 +84,7 @@
     importMsg = null;
     try {
       const name = await library.importYtm(l);
-      importMsg = { ok: true, text: `импортирован «${name}»` };
+      importMsg = { ok: true, text: t('playlists.imported', { name }) };
       importLink = '';
     } catch (e: any) {
       importMsg = { ok: false, text: String(e) };
@@ -115,54 +116,18 @@
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  $effect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const cleanups: (() => void)[] = [];
-    let raf = 0;
-
-    const attach = () => {
-      document.querySelectorAll<HTMLElement>('.list').forEach((el) => {
-        if (el.dataset.smoothed) return;
-        el.dataset.smoothed = '1';
-        let target = el.scrollTop;
-        let busy = false;
-
-        const onWheel = (e: WheelEvent) => {
-          e.preventDefault();
-          target = Math.max(0, Math.min(el.scrollHeight - el.clientHeight, target + e.deltaY));
-          if (!busy) {
-            busy = true;
-            const step = () => {
-              const diff = target - el.scrollTop;
-              if (Math.abs(diff) < 0.5) { busy = false; return; }
-              el.scrollTop += diff * 0.18;
-              raf = requestAnimationFrame(step);
-            };
-            raf = requestAnimationFrame(step);
-          }
-        };
-        el.addEventListener('wheel', onWheel, { passive: false });
-        cleanups.push(() => el.removeEventListener('wheel', onWheel));
-      });
-    };
-
-    attach();
-    const iv = setInterval(attach, 800);
-    cleanups.push(() => { clearInterval(iv); cancelAnimationFrame(raf); });
-    return () => cleanups.forEach((f) => f());
-  });
 </script>
 
 <div class="app">
   <TitleBar>
     <form class="search" onsubmit={submit} role="search">
       <svg width="18" height="18" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14"/></svg>
-      <input placeholder="что включить?" bind:value={q} />
+      <input placeholder={t('search.placeholder')} bind:value={q} />
     </form>
   </TitleBar>
 
   <nav class="tabs">
-    {#each [['search','поиск'],['queue','очередь'],['playlists','плейлисты'],['settings','настройки']] as [key, label] (key)}
+    {#each [['search', t('tabs.search')], ['queue', t('tabs.queue')], ['playlists', t('tabs.playlists')], ['settings', t('tabs.settings')]] as [key, label] (key)}
       <button bind:this={tabEls[key]} class:active={view === key}
               onclick={() => (view = key as any)}>{label}</button>
     {/each}
@@ -180,13 +145,21 @@
     {#key view}
       {#if view === 'settings'}
         <div class="panel settings">
-          <h3>цвет</h3>
+          <div class="row">
+            <span>{t('settings.language')}</span>
+            <div class="seg">
+              <button class:sel={locale.current === 'ru'} onclick={() => setLocale('ru')}>русский</button>
+              <button class:sel={locale.current === 'en'} onclick={() => setLocale('en')}>english</button>
+            </div>
+          </div>
+
+          <h3>{t('settings.color')}</h3>
           <div class="swatches">
             {#each PALETTES as p (p.seed)}
               <button class="swatch" class:sel={(settings.accentSeed || '').toLowerCase() === p.seed}
                       style={`background:${p.dark}`}
                       title={p.name}
-                      aria-label={`акцент: ${p.name}`}
+                      aria-label={`${t('settings.color')}: ${p.name}`}
                       onclick={() => setAccent(p.seed)}>
                 {#if (settings.accentSeed || '').toLowerCase() === p.seed}
                   <svg width="16" height="16" viewBox="0 0 24 24"><path fill="var(--md-surface)" d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
@@ -195,61 +168,61 @@
             {/each}
           </div>
 
-          <h3>волна</h3>
+          <h3>{t('settings.wave')}</h3>
           <div class="row">
-            <span>скорость волны</span>
+            <span>{t('settings.waveSpeed')}</span>
             <input type="range" class="setrange" min="0.2" max="1.2" step="0.05"
                    value={settings.waveSpeed ?? 0.55}
-                   aria-label="скорость волны"
+                   aria-label={t('settings.waveSpeed')}
                    oninput={(e) => save({ waveSpeed: Number((e.target as HTMLInputElement).value) })} />
           </div>
           <div class="row">
-            <span>размах волны</span>
+            <span>{t('settings.waveAmp')}</span>
             <input type="range" class="setrange" min="1.5" max="6" step="0.5"
                    value={settings.waveAmp ?? 3}
-                   aria-label="размах волны"
+                   aria-label={t('settings.waveAmp')}
                    oninput={(e) => save({ waveAmp: Number((e.target as HTMLInputElement).value) })} />
           </div>
           <div class="row">
-            <span>плавность интерфейса</span>
+            <span>{t('settings.uiSmoothness')}</span>
             <div class="seg">
               <button class:sel={(settings.uiFps ?? 60) === 30}
                       onclick={() => save({ uiFps: 30 })}>30</button>
               <button class:sel={(settings.uiFps ?? 60) === 60}
                       onclick={() => save({ uiFps: 60 })}>60</button>
               <button class:sel={!(settings.uiFps ?? 60)}
-                      onclick={() => save({ uiFps: 0 })}>макс</button>
+                      onclick={() => save({ uiFps: 0 })}>{t('settings.max')}</button>
             </div>
           </div>
 
-          <h3>как выглядит</h3>
+          <h3>{t('settings.looks')}</h3>
           <div class="row">
-            <span>тема</span>
+            <span>{t('settings.theme')}</span>
             <div class="seg">
               <button class:sel={settings.uiTheme !== 'light'}
-                      onclick={() => save({ uiTheme: 'dark' })}>тёмная</button>
+                      onclick={() => save({ uiTheme: 'dark' })}>{t('settings.dark')}</button>
               <button class:sel={settings.uiTheme === 'light'}
-                      onclick={() => save({ uiTheme: 'light' })}>светлая</button>
+                      onclick={() => save({ uiTheme: 'light' })}>{t('settings.light')}</button>
             </div>
           </div>
           <div class="row">
-            <span>живой фон</span>
+            <span>{t('settings.animatedBg')}</span>
             <button class="switch" class:on={settings.animatedBg !== false}
                     onclick={() => save({ animatedBg: !(settings.animatedBg !== false) })}
                     role="switch" aria-checked={settings.animatedBg !== false}
-                    aria-label="живой фон"></button>
+                    aria-label={t('settings.animatedBg')}></button>
           </div>
 
-          <h3>как работает</h3>
+          <h3>{t('settings.behavior')}</h3>
           <div class="row">
-            <span>крестик прячет в трей</span>
+            <span>{t('settings.closeToTray')}</span>
             <button class="switch" class:on={!!settings.closeToTray}
                     onclick={() => save({ closeToTray: !settings.closeToTray })}
                     role="switch" aria-checked={!!settings.closeToTray}
-                    aria-label="прятать в трей"></button>
+                    aria-label={t('settings.closeToTray')}></button>
           </div>
 
-          <h3>о приложении</h3>
+          <h3>{t('settings.about')}</h3>
           <div class="about">
             <svg width="40" height="40" viewBox="0 0 512 512" aria-hidden="true">
               <path d="M 307.3 115 A 150 150 0 1 1 204.7 115" fill="none"
@@ -258,22 +231,26 @@
             </svg>
             <div>
               <p class="ab-name">Sundial <span class="ab-ver">0.1.0-alpha</span></p>
-              <p class="ab-line">плеер для YouTube Music · Rust · Svelte · Material You</p>
-              <p class="ab-line">интерфейс — Material You 3. идея родилась из Sunder.</p>
-              <p class="ab-note">делаем для себя и таких же. с Google не связаны.</p>
+              <p class="ab-line">{t('settings.tagline')}</p>
+              <p class="ab-line">{t('settings.origin')}</p>
+              <div class="ab-links">
+                <a class="ab-link" href="https://github.com/Pivozavr7/sundial" target="_blank">{t('settings.github')}</a>
+                <a class="ab-link" href="https://t.me/vedmost" target="_blank">{t('settings.contact')}</a>
+              </div>
+              <p class="ab-note">{t('settings.disclaimer')}</p>
             </div>
           </div>
         </div>
 
       {:else if view === 'search'}
         {#if player.searching}
-          <div class="center"><p>секунду, ищу «{player.lastQuery}»…</p></div>
+          <div class="center"><p>{t('search.loading', { q: player.lastQuery })}</p></div>
         {:else if player.searchError}
-          <div class="center"><p class="big">не вышло</p><p class="hint">{player.searchError}</p></div>
+          <div class="center"><p class="big">{t('search.error')}</p><p class="hint">{player.searchError}</p></div>
         {:else if player.results.length > 0}
           <div class="results-head">
             <h2>{player.lastQuery}</h2>
-            <span class="count">{player.results.length} шт.</span>
+            <span class="count">{t('search.count', { n: player.results.length })}</span>
           </div>
           <div class="list panel">
             {#each player.results as item (item.videoId)}
@@ -297,23 +274,23 @@
           </div>
         {:else}
           <div class="center">
-            <p class="big">что послушаем?</p>
-            <p class="hint">ы3й</p>
+            <p class="big">{t('search.emptyTitle')}</p>
+            <p class="hint">{t('search.emptyHint')}</p>
           </div>
         {/if}
 
       {:else if view === 'queue'}
         {#if player.queue.length === 0}
           <div class="center">
-            <p class="big">пока пусто</p>
-            <p class="hint">dwa2</p>
+            <p class="big">{t('queue.emptyTitle')}</p>
+            <p class="hint">{t('queue.emptyHint')}</p>
           </div>
         {:else}
           <div class="results-head">
-            <h2>Очередь</h2>
+            <h2>{t('queue.title')}</h2>
             <span class="count">{player.queue.length}</span>
             <span class="gap"></span>
-            <button class="md-text" onclick={() => (saveOpen = true)}>сохранить как плейлист</button>
+            <button class="md-text" onclick={() => (saveOpen = true)}>{t('queue.saveAs')}</button>
           </div>
           <div class="list panel">
             {#each player.queue as item, i (item.videoId + '-' + i)}
@@ -341,8 +318,8 @@
       {:else if !open}
         <div class="panel import">
           <form class="improw" onsubmit={(e) => { e.preventDefault(); doImport(); }}>
-            <input placeholder="ссылка на плейлист из youtube music" bind:value={importLink} />
-            <button class="md-filled" disabled={importing}>{importing ? 'импорт…' : 'импорт'}</button>
+            <input placeholder={t('playlists.importPlaceholder')} bind:value={importLink} />
+            <button class="md-filled" disabled={importing}>{importing ? t('playlists.importing') : t('playlists.import')}</button>
           </form>
           {#if importMsg}
             <p class="impmsg" class:err={!importMsg.ok}>{importMsg.text}</p>
@@ -351,15 +328,15 @@
 
         {#if library.playlists.length === 0}
           <div class="center">
-            <p class="big">zдесь пока пусто</p>
-            <p class="hint">импортируй из youyube music или собери свой</p>
+            <p class="big">{t('playlists.emptyTitle')}</p>
+            <p class="hint">{t('playlists.emptyHint')}</p>
           </div>
         {:else}
           <div class="plgrid">
             {#each library.playlists as p (p.name)}
               <button class="plcard" onclick={() => (openPl = p.name)}>
                 <span class="plname">{p.name}</span>
-                <span class="plcount">{p.tracks.length} шт.{p.source ? ' · из YTM' : ''}</span>
+                <span class="plcount">{t('playlists.tracks', { n: p.tracks.length })}{p.source ? t('playlists.fromYtm') : ''}</span>
               </button>
             {/each}
           </div>
@@ -367,14 +344,14 @@
 
       {:else}
         <div class="results-head">
-          <button class="back" onclick={() => (openPl = null)} title="назад" aria-label="назад">
+          <button class="back" onclick={() => (openPl = null)} title={t('playlists.back')} aria-label={t('playlists.back')}>
             <svg width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M20 11H7.8l5.6-5.6L12 4l-8 8 8 8 1.4-1.4L7.8 13H20z"/></svg>
           </button>
           <h2>{open.name}</h2>
           <span class="count">{open.tracks.length}</span>
           <span class="gap"></span>
-          <button class="md-text" onclick={() => player.playQueue(open.tracks.map((t) => ({ ...t })), 0)}>слушать</button>
-          <button class="md-text danger" onclick={() => { library.del(open.name); openPl = null; }}>удалить</button>
+          <button class="md-text" onclick={() => player.playQueue(open.tracks.map((t) => ({ ...t })), 0)}>{t('playlists.play')}</button>
+          <button class="md-text danger" onclick={() => { library.del(open.name); openPl = null; }}>{t('playlists.delete')}</button>
         </div>
         <div class="list panel">
           {#each open.tracks as item, i (item.videoId + '-' + i)}
@@ -408,7 +385,7 @@
   <div class="scrimwrap">
     <button class="scrim" aria-label="Закрыть" onclick={() => (addModal = null)}></button>
     <div class="modal" role="dialog" aria-modal="true">
-      <h3>добавить в плейлист</h3>
+      <h3>{t('modal.addToPlaylist')}</h3>
       <p class="mtrack">{addModal.title}</p>
       <div class="pllist">
         {#each library.playlists as p (p.name)}
@@ -416,8 +393,8 @@
         {/each}
       </div>
       <div class="newpl">
-        <input placeholder="новый плейлист" bind:value={newName} />
-        <button class="md-filled" onclick={createAndAdd}>создать</button>
+        <input placeholder={t('modal.newPlaylist')} bind:value={newName} />
+        <button class="md-filled" onclick={createAndAdd}>{t('modal.create')}</button>
       </div>
     </div>
   </div>
@@ -427,10 +404,10 @@
   <div class="scrimwrap">
     <button class="scrim" aria-label="Закрыть" onclick={() => (saveOpen = false)}></button>
     <div class="modal" role="dialog" aria-modal="true">
-      <h3>сохранить очередь как плейлист</h3>
+      <h3>{t('modal.saveQueue')}</h3>
       <div class="newpl">
-        <input placeholder="название" bind:value={newName} />
-        <button class="md-filled" onclick={saveQueueConfirm}>Сохранить</button>
+        <input placeholder={t('modal.name')} bind:value={newName} />
+        <button class="md-filled" onclick={saveQueueConfirm}>{t('modal.save')}</button>
       </div>
     </div>
   </div>
@@ -549,6 +526,9 @@
   .ab-ver { font-size: 12px; color: var(--md-on-surface-variant); margin-left: 6px; }
   .ab-line { font-size: 12px; color: var(--md-on-surface-variant); }
   .ab-note { font-size: 11px; color: var(--md-outline); margin-top: 4px; }
+  .ab-links { display: flex; gap: 14px; padding: 8px 0 2px; }
+  .ab-link { color: var(--md-primary); font-size: 13px; font-weight: 500; }
+  .ab-link:hover { text-decoration: underline; }
 
   .center {
     position: relative; z-index: 1;

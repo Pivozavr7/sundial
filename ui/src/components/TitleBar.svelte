@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from '@tauri-apps/api/core';
   import { onMount } from 'svelte';
+  import { t } from '../lib/i18n.svelte.ts';
 
   let { children } = $props();
 
@@ -31,13 +32,13 @@
   <div class="spacer" data-tauri-drag-region></div>
 
   {#if mode === 'unknown'}
-  <button class="wbtn" title="свернуть" onclick={() => act('min')}>
+  <button class="wbtn" title={t('window.min')} onclick={() => act('min')}>
       <svg width="12" height="12" viewBox="0 0 12 12"><path d="M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
-    <button class="wbtn" title="развернуть" onclick={() => act('max')}>
+    <button class="wbtn" title={t('window.max')} onclick={() => act('max')}>
       <svg width="12" height="12" viewBox="0 0 12 12"><rect x="1.8" y="1.8" width="8.4" height="8.4" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
     </button>
-    <button class="wbtn close" title="zакрыть" onclick={() => act('close')}>
+    <button class="wbtn close" title={t('window.close')} onclick={() => act('close')}>
       <svg width="12" height="12" viewBox="0 0 12 12"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
     </button>
   {/if}

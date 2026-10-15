@@ -17,7 +17,8 @@ mod windows;
 use tauri::Manager;
 
 fn main() {
-    std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
+    std::env::set_var("__NV_DISABLE_EXPLICIT_SYNC", "1");
+    std::env::set_var("WEBKIT_DMABUF_RENDERER_FORCE_SHM", "1");
     if std::env::var("APPIMAGE").is_ok() {
         std::env::set_var("GST_PLUGIN_SYSTEM_PATH", "/usr/lib/gstreamer-1.0");
     }

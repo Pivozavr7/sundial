@@ -1,0 +1,82 @@
+{
+  "tabs": {
+    "search": "search",
+    "queue": "queue",
+    "playlists": "playlists",
+    "settings": "settings"
+  },
+  "search": {
+    "placeholder": "what are we playing?",
+    "loading": "hold on, digging up «{q}»…",
+    "error": "didn't work out",
+    "emptyTitle": "so, what are we listening to?",
+    "emptyHint": "asdf",
+    "count": "{n} tracks"
+  },
+  "queue": {
+    "title": "queue",
+    "emptyTitle": "nothing here yet",
+    "emptyHint": "press buttons, get music",
+    "saveAs": "save as playlist"
+  },
+  "playlists": {
+    "importPlaceholder": "paste a youtube music playlist link",
+    "import": "import",
+    "importing": "importing…",
+    "imported": "«{name}» imported",
+    "emptyTitle": "nothing in here yet",
+    "emptyHint": "import from youtube music or grow your own",
+    "tracks": "{n} tracks",
+    "fromYtm": "· from ytm",
+    "back": "back",
+    "play": "play",
+    "delete": "delete"
+  },
+  "settings": {
+    "color": "color",
+    "wave": "wave",
+    "waveSpeed": "wave speed",
+    "waveAmp": "wave size",
+    "uiSmoothness": "ui smoothness",
+    "max": "max",
+    "looks": "looks",
+    "theme": "theme",
+    "dark": "dark",
+    "light": "light",
+    "animatedBg": "live background",
+    "behavior": "behavior",
+    "closeToTray": "close button hides to tray",
+    "language": "language",
+    "about": "about",
+    "tagline": "a youtube music player · rust · svelte · material you",
+    "origin": "ui — material you 3. the idea came from sunder.",
+    "disclaimer": "not affiliated with google.",
+    "github": "github",
+    "contact": "say hi"
+  },
+  "player": {
+    "silence": "silence…",
+    "silenceHint": "go find something up there",
+    "prev": "previous",
+    "play": "play",
+    "pause": "pause",
+    "next": "next",
+    "mute": "mute",
+    "unmute": "unmute",
+    "position": "position",
+    "volume": "volume"
+  },
+  "modal": {
+    "addToPlaylist": "add to playlist",
+    "newPlaylist": "new playlist",
+    "create": "create",
+    "saveQueue": "save queue as playlist",
+    "name": "name",
+    "save": "save"
+  },
+  "window": {
+    "min": "minimize",
+    "max": "maximize",
+    "close": "close"
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "tabs": {
+    "search": "поиск",
+    "queue": "очередь",
+    "playlists": "плейлисты",
+    "settings": "настройки"
+  },
+  "search": {
+    "placeholder": "что включить?",
+    "loading": "секунду, ищу «{q}»…",
+    "error": "не вышло",
+    "emptyTitle": "что послушаем?",
+    "emptyHint": "ы3й",
+    "count": "{n} шт."
+  },
+  "queue": {
+    "title": "Очередь",
+    "emptyTitle": "пока пусто",
+    "emptyHint": "dwa2",
+    "saveAs": "сохранить как плейлист"
+  },
+  "playlists": {
+    "importPlaceholder": "ссылка на плейлист из youtube music",
+    "import": "импорт",
+    "importing": "импорт…",
+    "imported": "импортирован «{name}»",
+    "emptyTitle": "zдесь пока пусто",
+    "emptyHint": "импортируй из youyube music или собери свой",
+    "tracks": "{n} шт.",
+    "fromYtm": "· из YTM",
+    "back": "назад",
+    "play": "слушать",
+    "delete": "удалить"
+  },
+  "settings": {
+    "color": "цвет",
+    "wave": "волна",
+    "waveSpeed": "скорость волны",
+    "waveAmp": "размах волны",
+    "uiSmoothness": "плавность интерфейса",
+    "max": "макс",
+    "looks": "как выглядит",
+    "theme": "тема",
+    "dark": "тёмная",
+    "light": "светлая",
+    "animatedBg": "живой фон",
+    "behavior": "как работает",
+    "closeToTray": "крестик прячет в трей",
+    "language": "язык",
+    "about": "о приложении",
+    "tagline": "плеер для YouTube Music · Rust · Svelte · Material You",
+    "origin": "интерфейс — Material You 3. идея появилась из Sunder.",
+    "disclaimer": "ыван 91",
+    "github": "гитхаб",
+    "contact": "написать мне"
+  },
+  "player": {
+    "silence": "тишина…",
+    "silenceHint": "найди что-нибудь сверху",
+    "prev": "предыдущий",
+    "play": "слушать",
+    "pause": "пауза",
+    "next": "Следующий",
+    "mute": "выключить звук",
+    "unmute": "включить звук",
+    "position": "позиция",
+    "volume": "громкость"
+  },
+  "modal": {
+    "addToPlaylist": "добавить в плейлист",
+    "newPlaylist": "новый плейлист",
+    "create": "создать",
+    "saveQueue": "сохранить очередь как плейлист",
+    "name": "название",
+    "save": "Сохранить"
+  },
+  "window": {
+    "min": "свернуть",
+    "max": "развернуть",
+    "close": "zакрыть"
+  }
+}
