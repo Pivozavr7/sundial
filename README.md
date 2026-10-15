@@ -24,8 +24,6 @@ this is the author's first project, so the code doesn't apologize for anything.
 
 ## building
 
-no releases yet, so it's source-only for now. you need rust, node.js and tauri cli.
-
 ```bash
 # frontend
 cd ui
