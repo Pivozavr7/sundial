@@ -1,3 +1,24 @@
 fn main() {
-    tauri_build::build()
+    tauri_build::try_build(
+        tauri_build::Attributes::new()
+            .app_manifest(
+                tauri_build::AppManifest::new()
+                    .commands(&[
+                        "ytm_search",
+                        "player_sync",
+                        "window_action",
+                        "get_settings",
+                        "set_settings",
+                        "window_deco_mode",
+                        "pl_list",
+                        "pl_save",
+                        "pl_add",
+                        "pl_delete",
+                        "pl_remove_track",
+                        "pl_save_source",
+                        "ytm_playlist",
+                    ]),
+            ),
+    )
+    .expect("failed to run tauri-build");
 }

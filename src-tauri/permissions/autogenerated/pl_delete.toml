@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pl-delete"
+description = "Enables the pl_delete command without any pre-configured scope."
+commands.allow = ["pl_delete"]
+
+[[permission]]
+identifier = "deny-pl-delete"
+description = "Denies the pl_delete command without any pre-configured scope."
+commands.deny = ["pl_delete"]

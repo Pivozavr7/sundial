@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-ytm-playlist"
+description = "Enables the ytm_playlist command without any pre-configured scope."
+commands.allow = ["ytm_playlist"]
+
+[[permission]]
+identifier = "deny-ytm-playlist"
+description = "Denies the ytm_playlist command without any pre-configured scope."
+commands.deny = ["ytm_playlist"]

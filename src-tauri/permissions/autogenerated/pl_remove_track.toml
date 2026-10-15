@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pl-remove-track"
+description = "Enables the pl_remove_track command without any pre-configured scope."
+commands.allow = ["pl_remove_track"]
+
+[[permission]]
+identifier = "deny-pl-remove-track"
+description = "Denies the pl_remove_track command without any pre-configured scope."
+commands.deny = ["pl_remove_track"]

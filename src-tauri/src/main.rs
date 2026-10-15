@@ -13,19 +13,35 @@ mod state;
 #[cfg(feature = "tray")]
 mod tray;
 mod windows;
+
 use tauri::Manager;
 
 fn main() {
     std::env::set_var("WEBKIT_DISABLE_DMABUF_RENDERER", "1");
     if std::env::var("APPIMAGE").is_ok() {
-           std::env::set_var("GST_PLUGIN_SYSTEM_PATH", "/usr/lib/gstreamer-1.0");
-       }
+        std::env::set_var("GST_PLUGIN_SYSTEM_PATH", "/usr/lib/gstreamer-1.0");
+    }
+
+    let port = portpicker::pick_unused_port().expect("не нашёл свободный порт");
+
     tauri::Builder::default()
-        .setup(|app| {
+        .plugin(tauri_plugin_localhost::Builder::new(port).build())
+        .setup(move |app| {
             let handle = app.handle().clone();
             settings::init(&handle)?;
             app.manage(state::PlayerState::default());
-            windows::create_main(&handle)?;
+
+            #[cfg(dev)]
+            let url = tauri::WebviewUrl::App("index.html".into());
+
+            #[cfg(not(dev))]
+            let url = {
+                let url: tauri::Url = format!("http://localhost:{}", port).parse().unwrap();
+                tauri::WebviewUrl::External(url)
+            };
+
+            windows::create_main_with_url(&handle, url)?;
+
             #[cfg(feature = "tray")]
             tray::init(&handle)?;
             #[cfg(feature = "mpris")]

@@ -177,6 +177,162 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Enables the get_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-get-settings",
+          "markdownDescription": "Enables the get_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_add command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-add",
+          "markdownDescription": "Enables the pl_add command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_delete command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-delete",
+          "markdownDescription": "Enables the pl_delete command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-list",
+          "markdownDescription": "Enables the pl_list command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_remove_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-remove-track",
+          "markdownDescription": "Enables the pl_remove_track command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_save command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-save",
+          "markdownDescription": "Enables the pl_save command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the pl_save_source command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-pl-save-source",
+          "markdownDescription": "Enables the pl_save_source command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the player_sync command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-player-sync",
+          "markdownDescription": "Enables the player_sync command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the set_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-set-settings",
+          "markdownDescription": "Enables the set_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the window_action command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-window-action",
+          "markdownDescription": "Enables the window_action command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the window_deco_mode command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-window-deco-mode",
+          "markdownDescription": "Enables the window_deco_mode command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the ytm_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-ytm-playlist",
+          "markdownDescription": "Enables the ytm_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the ytm_search command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-ytm-search",
+          "markdownDescription": "Enables the ytm_search command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the get_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-get-settings",
+          "markdownDescription": "Denies the get_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_add command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-add",
+          "markdownDescription": "Denies the pl_add command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_delete command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-delete",
+          "markdownDescription": "Denies the pl_delete command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_list command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-list",
+          "markdownDescription": "Denies the pl_list command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_remove_track command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-remove-track",
+          "markdownDescription": "Denies the pl_remove_track command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_save command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-save",
+          "markdownDescription": "Denies the pl_save command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the pl_save_source command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-pl-save-source",
+          "markdownDescription": "Denies the pl_save_source command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the player_sync command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-player-sync",
+          "markdownDescription": "Denies the player_sync command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the set_settings command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-set-settings",
+          "markdownDescription": "Denies the set_settings command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the window_action command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-window-action",
+          "markdownDescription": "Denies the window_action command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the window_deco_mode command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-window-deco-mode",
+          "markdownDescription": "Denies the window_deco_mode command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the ytm_playlist command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-ytm-playlist",
+          "markdownDescription": "Denies the ytm_playlist command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the ytm_search command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-ytm-search",
+          "markdownDescription": "Denies the ytm_search command without any pre-configured scope."
+        },
+        {
           "description": "Default core plugins set.\n#### This default permission set includes:\n\n- `core:path:default`\n- `core:event:default`\n- `core:window:default`\n- `core:webview:default`\n- `core:app:default`\n- `core:image:default`\n- `core:resources:default`\n- `core:menu:default`\n- `core:tray:default`",
           "type": "string",
           "const": "core:default",

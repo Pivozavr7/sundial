@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pl-save-source"
+description = "Enables the pl_save_source command without any pre-configured scope."
+commands.allow = ["pl_save_source"]
+
+[[permission]]
+identifier = "deny-pl-save-source"
+description = "Denies the pl_save_source command without any pre-configured scope."
+commands.deny = ["pl_save_source"]

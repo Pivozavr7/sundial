@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-pl-add"
+description = "Enables the pl_add command without any pre-configured scope."
+commands.allow = ["pl_add"]
+
+[[permission]]
+identifier = "deny-pl-add"
+description = "Denies the pl_add command without any pre-configured scope."
+commands.deny = ["pl_add"]

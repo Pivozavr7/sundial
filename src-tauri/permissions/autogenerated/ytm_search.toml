@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-ytm-search"
+description = "Enables the ytm_search command without any pre-configured scope."
+commands.allow = ["ytm_search"]
+
+[[permission]]
+identifier = "deny-ytm-search"
+description = "Denies the ytm_search command without any pre-configured scope."
+commands.deny = ["ytm_search"]
