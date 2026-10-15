@@ -1,0 +1,32 @@
+[package]
+name = "sundial"
+version = "0.1.0"
+description = "YouTube Music client on tauri v2"
+edition = "2021"
+rust-version = "1.77.2"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri = { version = "2", features = ["dynamic-acl", "devtools"] }
+tauri-plugin-localhost = "2.4"
+portpicker = "0.1"
+reqwest = { version = "0.12", features = ["json"] }
+mpris-server = { version = "0.8", optional = true }
+tauri-plugin-global-shortcut = { version = "2", optional = true }
+async-channel = { version = "2", optional = true }
+futures-lite = { version = "2", optional = true }
+
+[features]
+default = ["tray", "mpris", "hotkeys"]
+tray = ["tauri/tray-icon"]
+mpris = ["dep:mpris-server", "dep:async-channel", "dep:futures-lite"]
+hotkeys = ["dep:tauri-plugin-global-shortcut"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

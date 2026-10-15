@@ -1,0 +1,30 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body, #app { height: 100%; overflow: hidden; }
+
+body {
+  font: 14px/1.45 system-ui, 'Segoe UI', Roboto, sans-serif;
+  background: var(--md-surface);
+  color: var(--md-on-surface);
+  user-select: none;
+  transition: background .25s, color .25s;
+}
+
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+
+.md-filled {
+  background: var(--md-primary);
+  color: var(--md-on-primary);
+  padding: 10px 24px;
+  border-radius: 100px;
+  transition: box-shadow .15s, filter .15s;
+}
+.md-filled:hover { filter: brightness(1.08); box-shadow: 0 1px 3px 1px rgba(0,0,0,.15); }
+.md-filled:active { filter: brightness(.92); }
+
+.md-text {
+  color: var(--md-primary);
+  padding: 10px 12px;
+  border-radius: 100px;
+}
+.md-text:hover { background: color-mix(in srgb, var(--md-primary) 10%, transparent); }

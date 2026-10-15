@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sundial</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <pre id="pear-boot" style="position:fixed;left:8px;right:8px;bottom:8px;background:#3a0d0d;color:#ffd7d7;padding:10px;border-radius:10px;z-index:2147483647;font:12px/1.5 monospace;white-space:pre-wrap"></pre>
+    <script>
+      window.__boot = (m) => { const el = document.getElementById('pear-boot'); if (el) el.textContent += m + '\n'; };
+      window.addEventListener('error', (e) => window.__boot('ОШИБКА: ' + e.message + ' @ ' + (e.filename || '?') + ':' + e.lineno));
+      window.addEventListener('unhandledrejection', (e) => window.__boot('REJECTION: ' + ((e.reason && e.reason.message) || e.reason)));
+      window.__boot('index.html: жив, #app = ' + !!document.getElementById('app'));
+    </script>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
