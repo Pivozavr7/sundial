@@ -68,7 +68,6 @@ since it's a first project, no pretending:
 - **no releases, ci or tests.** manual testing only.
 - **monolithic ui.** the whole frontend lives in one `app.svelte` (~29 kb). a refactor is coming, someday, eventually.
 - **comments and error messages are half in russian.** it's a feature, probably.
-- **no screenshots yet.** will add once the ui settles.
 - **vibecode.**
 ## roadmap
 
