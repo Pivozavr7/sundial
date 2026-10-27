@@ -378,6 +378,12 @@
     {/key}
   </main>
 
+  {#if player.error}
+    <div class="play-error" role="alert">
+      <span class="pe-txt">{player.error}</span>
+      <button class="pe-x" onclick={() => (player.error = null)} aria-label="закрыть">×</button>
+    </div>
+  {/if}
   <PlayerBar waveSpeed={settings.waveSpeed ?? 0.55} waveAmp={settings.waveAmp ?? 3.0} />
 </div>
 

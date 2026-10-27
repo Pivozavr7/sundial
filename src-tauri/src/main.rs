@@ -33,6 +33,7 @@ fn main() {
             settings::init(&handle)?;
             app.manage(state::PlayerState::default());
             app.manage(audio::AudioHandle::default());
+            audio::init_volume(&handle);
 
             #[cfg(dev)]
             let url = tauri::WebviewUrl::App("index.html".into());

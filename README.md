@@ -22,6 +22,20 @@ this is the author's first project, so the code doesn't apologize for anything.
 - the theme picks colors from the track cover (material you)
 - two languages: русский и english (see `ui/src/lib/locales/`)
 
+## dependencies
+
+runtime (the app silently refuses to play without these):
+
+- `yt-dlp` — search and audio download. put a fresh one on `$PATH` (`pipx install yt-dlp` or distro package). youtube breaks old versions regularly, so update it if playback dies.
+- `ffmpeg` — yt-dlp uses it to extract audio into m4a.
+
+build (linux):
+
+- rust stable (`rustup`)
+- tauri cli: `cargo install tauri-cli --version '^2'`
+- system libs, debian/ubuntu: `sudo apt install libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev`
+- arch: `sudo pacman -S webkit2gtk-4.1 gtk3 libayatana-appindicator librsvg`
+
 ## building
 
 ```bash

@@ -19,6 +19,7 @@ class Player {
   playing = $state(false);
   pos = $state(0);
   volume = $state(1);
+  error = $state<string | null>(null);
 
   queue = $state<SearchItem[]>([]);
   qidx = $state(-1);
@@ -53,6 +54,10 @@ class Player {
         else if (action === 'volume' && value != null) this.setVolume(value);
       });
       await listen('track-ended', () => this.next());
+      await listen<string>('audio-error', (e) => {
+        console.error('[pear] audio:', e.payload);
+        this.error = String(e.payload);
+      });
     } catch (e) {
       console.warn('[pear] IPC:', e);
     }
@@ -115,9 +120,11 @@ class Player {
     this.#anchor(0);
     this.pos = 0;
     this.playing = true;
+    this.error = null;
     invoke('audio_play', { videoId: item.videoId }).catch((e) => {
       console.error('[pear] play:', e);
       this.playing = false;
+      this.error = String(e);
     });
     this.#sync();
   }

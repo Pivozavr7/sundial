@@ -28,3 +28,28 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
   border-radius: 100px;
 }
 .md-text:hover { background: color-mix(in srgb, var(--md-primary) 10%, transparent); }
+.play-error {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 104px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: min(640px, 92vw);
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--md-error, #b3261e) 15%, var(--md-surface, #1c1b1f));
+  color: var(--md-on-surface, #e6e1e5);
+  border: 1px solid color-mix(in srgb, var(--md-error, #b3261e) 55%, transparent);
+  font-size: 13px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, .3);
+}
+.play-error .pe-txt { flex: 1; word-break: break-word; white-space: pre-wrap; }
+.play-error .pe-x {
+  border: 0; background: transparent; color: inherit;
+  font-size: 16px; line-height: 1; cursor: pointer; padding: 4px;
+  border-radius: 50%;
+}
+.play-error .pe-x:hover { background: rgba(255, 255, 255, .08); }
