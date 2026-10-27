@@ -26,6 +26,14 @@
     "allow-pl-delete",
     "allow-pl-remove-track",
     "allow-pl-save-source",
-    "allow-ytm-playlist"
+    "allow-ytm-playlist",
+    "allow-audio-play",
+    "allow-audio-seek",
+    "allow-audio-pause",
+    "allow-audio-resume",
+    "allow-audio-stop",
+    "allow-audio-volume",
+    "allow-audio-pos",
+    "allow-audio-dur"
   ]
 }

@@ -1,6 +1,5 @@
 import { listen } from '@tauri-apps/api/event';
 import { invoke } from '@tauri-apps/api/core';
-import { createPlayer } from './yt';
 
 export interface SearchItem {
   videoId: string; title: string; subtitle: string; thumb: string | null;
@@ -26,9 +25,6 @@ class Player {
 
   #anchorPos = 0;
   #anchorAt = 0;
-
-  #yt: any = null;
-  #ytReady: Promise<any> | null = null;
   #lastVol = 1;
 
   get estPos(): number {
@@ -44,75 +40,34 @@ class Player {
   }
 
   async init() {
-    const inTauri = typeof (window as any).__TAURI_INTERNALS__ !== 'undefined';
-
-    if (inTauri) {
-      try {
-        await listen<{ action: string; value: number | null }>('host', (e) => {
-          const { action, value } = e.payload;
-          if (action === 'play_pause') this.playPause();
-          else if (action === 'play') this.#yt?.playVideo();
-          else if (action === 'pause') this.#yt?.pauseVideo();
-          else if (action === 'next') this.next();
-          else if (action === 'prev') this.prev();
-          else if (action === 'seek' && value != null) this.seekTo(value);
-          else if (action === 'seek_by' && value != null) this.seekTo(this.estPos + value);
-          else if (action === 'volume' && value != null) this.setVolume(value);
-        });
-      } catch (e) {
-        console.warn('[pear] IPC-мост не подключился:', e);
-      }
-    }
-
-    setInterval(() => {
-      if (this.playing && this.#yt) {
-        const t = this.#yt.getCurrentTime() || 0;
-        const d = this.#yt.getDuration() || 0;
-        this.#anchor(t);
-        this.pos = this.estPos;
-        if (d > 0 && this.track) this.track.durationSecs = d;
-        this.#sync();
-      }
-    }, 2000);
-  }
-
-  #ensurePlayer(): Promise<any> {
-    if (!this.#ytReady) {
-      this.#ytReady = createPlayer({
-        onState: (s) => {
-          if (s === 0) {
-            // ended: скипаем только если трек дошёл до конца честно.
-            // если «кончился» на середине — тракт аудио сломан, очередь не уносим.
-            const p = this.#yt;
-            if (p && p.getDuration && p.getCurrentTime
-                && p.getDuration() > 0
-                && p.getCurrentTime() < p.getDuration() - 2) {
-              console.warn('[pear] ended раньше времени — аудио-тракт сломан, не скипаю');
-              return;
-            }
-            this.next();
-            return;
-          }
-          this.playing = s === 1;
-          const t = this.#yt?.getCurrentTime?.() ?? null;
-          if (t != null) this.#anchor(t);
-          this.pos = this.estPos;
-          this.#sync();
-        },
-        onError: (code) => {
-          console.error(
-            `[pear] Ошибка YouTube: ${code}, трек: ${this.track?.title}`
-          );
-          this.playing = false;
-          this.#sync();
-        },
-      }).then((p) => {
-        this.#yt = p;
-        p.setVolume(Math.round(this.volume * 100));
-        return p;
+    try {
+      await listen<{ action: string; value: number | null }>('host', (e) => {
+        const { action, value } = e.payload;
+        if (action === 'play_pause') this.playPause();
+        else if (action === 'play') { invoke('audio_resume'); this.playing = true; }
+        else if (action === 'pause') { invoke('audio_pause'); this.playing = false; }
+        else if (action === 'next') this.next();
+        else if (action === 'prev') this.prev();
+        else if (action === 'seek' && value != null) this.seekTo(value);
+        else if (action === 'seek_by' && value != null) this.seekTo(this.estPos + value);
+        else if (action === 'volume' && value != null) this.setVolume(value);
       });
+      await listen('track-ended', () => this.next());
+    } catch (e) {
+      console.warn('[pear] IPC:', e);
     }
-    return this.#ytReady;
+
+    setInterval(async () => {
+      try {
+        const [p, d] = await Promise.all([invoke<number>('audio_pos'), invoke<number>('audio_dur')]);
+        if (p > 0 || d > 0) {
+          this.#anchor(p / 1000);
+          this.pos = this.estPos;
+          if (d > 0 && this.track) this.track.durationSecs = d / 1000;
+          this.#sync();
+        }
+      } catch {}
+    }, 500);
   }
 
   async search(q: string) {
@@ -152,16 +107,18 @@ class Player {
     this.track = {
       id: item.videoId,
       title: item.title,
-      artist: item.subtitle || 'YouTube Music',
+      artist: item.subtitle || 'YouTube',
       album: '',
       artUrl: item.thumb,
       durationSecs: 0,
     };
     this.#anchor(0);
     this.pos = 0;
-    this.#ensurePlayer()
-      .then((p) => p.loadVideoById(item.videoId))
-      .catch((e) => console.error('[pear] плеер не поднялся:', e));
+    this.playing = true;
+    invoke('audio_play', { videoId: item.videoId }).catch((e) => {
+      console.error('[pear] play:', e);
+      this.playing = false;
+    });
     this.#sync();
   }
 
@@ -174,21 +131,26 @@ class Player {
   }
 
   playPause() {
-    if (!this.#yt) return;
-    this.playing ? this.#yt.pauseVideo() : this.#yt.playVideo();
+    if (!this.track) return;
+    if (this.playing) { invoke('audio_pause'); this.playing = false; }
+    else { invoke('audio_resume'); this.playing = true; }
+    this.#anchor(this.estPos);
+    this.#sync();
   }
 
   seekTo(sec: number) {
-    if (this.#yt && Number.isFinite(sec)) this.#yt.seekTo(sec, true);
+    if (!Number.isFinite(sec) || sec < 0) return;
+    invoke('audio_seek', { sec }).catch(() => {});
     this.#anchor(sec);
     this.pos = sec;
+    this.playing = true;
   }
 
   setVolume(v: number) {
     const c = Math.min(1, Math.max(0, v));
     this.volume = c;
     if (c > 0) this.#lastVol = c;
-    if (this.#yt) this.#yt.setVolume(Math.round(c * 100));
+    invoke('audio_volume', { v: c }).catch(() => {});
   }
 
   toggleMute() {

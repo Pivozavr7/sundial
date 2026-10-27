@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 mod bridge;
+mod audio;
 mod chrome;
 #[cfg(feature = "hotkeys")]
 mod hotkeys;
@@ -31,6 +32,7 @@ fn main() {
             let handle = app.handle().clone();
             settings::init(&handle)?;
             app.manage(state::PlayerState::default());
+            app.manage(audio::AudioHandle::default());
 
             #[cfg(dev)]
             let url = tauri::WebviewUrl::App("index.html".into());
@@ -74,6 +76,14 @@ fn main() {
             library::pl_remove_track,
             library::pl_save_source,
             library::ytm_playlist,
+            audio::audio_play,
+            audio::audio_seek,
+            audio::audio_pause,
+            audio::audio_resume,
+            audio::audio_stop,
+            audio::audio_volume,
+            audio::audio_pos,
+            audio::audio_dur
         ])
         .run(tauri::generate_context!())
         .expect("sundial: ошибка запуска");

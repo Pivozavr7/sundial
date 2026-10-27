@@ -13,117 +13,100 @@ pub struct SearchItem {
     pub thumb: Option<String>,
 }
 
-const INNERTUBE_KEY: &str = "AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30";
-const CLIENT_VERSION: &str = "1.20240403.01.00";
-const UA: &str = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36";
-
 #[tauri::command]
 pub async fn ytm_search(query: String) -> Result<Vec<SearchItem>, String> {
-    let cli = reqwest::Client::builder()
-        .user_agent(UA)
-        .build()
-        .map_err(|e| e.to_string())?;
+    let q = query.trim();
+    if q.is_empty() { return Ok(vec![]); }
 
-    let resp = cli
-        .post(format!(
-            "https://music.youtube.com/youtubei/v1/search?prettyPrint=false&key={INNERTUBE_KEY}"
-        ))
-        .json(&json!({
-            "context": { "client": {
-                "clientName": "WEB_REMIX",
-                "clientVersion": CLIENT_VERSION,
-                "hl": "ru",
-                "gl": "RU"
-            }},
-            "query": query
-        }))
-        .send()
+    let out = run_ytdlp(vec![
+        format!("ytsearch30:{q}"),
+        "--dump-json".into(),
+        "--flat-playlist".into(),
+        "--no-warnings".into(),
+        "--ignore-errors".into(),
+    ]).await?;
+
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    if stdout.is_empty() { return Err("yt-dlp: no results".into()); }
+
+    let mut items = parse_flat(&stdout, q);
+    items.sort_by(|a, b| b.score.cmp(&a.score));
+    let items: Vec<SearchItem> = items.into_iter().map(|s| s.item).collect();
+    Ok(items)
+}
+
+async fn run_ytdlp(args: Vec<String>) -> Result<std::process::Output, String> {
+    tokio::process::Command::new("yt-dlp")
+        .args(&args)
+        .stdout(std::process::Stdio::piped())
+        .stderr(std::process::Stdio::null())
+        .output()
         .await
-        .map_err(|e| format!("сеть: {e}"))?;
+        .map_err(|e| format!("yt-dlp: {e}"))
+}
 
-    let data: serde_json::Value = resp.json().await.map_err(|e| format!("json: {e}"))?;
+struct Scored { item: SearchItem, score: i64 }
+
+fn parse_flat(stdout: &str, query: &str) -> Vec<Scored> {
+    let q = query.to_lowercase();
+    let qlen = q.split_whitespace().count().max(1);
     let mut out = Vec::new();
-    collect_items(&data, &mut out);
 
-    let mut seen = std::collections::HashSet::new();
-    out.retain(|i| seen.insert(i.video_id.clone()));
-    out.truncate(40);
-    Ok(out)
+    for line in stdout.lines() {
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(line) else { continue };
+        if !v["url"].as_str().is_some_and(|u| u.contains("/watch")) { continue; }
+        let (Some(id), Some(title)) = (v["id"].as_str(), v["title"].as_str()) else { continue };
+        let dur = v["duration"].as_f64().unwrap_or(0.0);
+        if !(0.5..=1500.0).contains(&dur) { continue; }
+        let channel = v["channel"].as_str().or_else(|| v["uploader"].as_str()).unwrap_or("");
+        if channel.is_empty() { continue; }
+
+        let t = title.to_lowercase();
+        let c = channel.to_lowercase();
+        let mut score = 0i64;
+
+        // official audio uploads win
+        if channel.ends_with("- Topic") { score += 60; }
+        // artist name in the channel (queries are usually "artist song")
+        if q.split_whitespace().any(|w| w.len() > 2 && c.contains(w)) { score += 25; }
+        // query words present in the title
+        let hits = q.split_whitespace()
+            .filter(|w| w.len() > 2 && t.contains(w))
+            .count();
+        score += (hits * 15) as i64;
+        // strong signal: all words of the query in the title
+        if hits >= qlen { score += 20; }
+        // verified channel bonus
+        if v["channel_is_verified"].as_bool().unwrap_or(false) { score += 15; }
+        // music-length videos preferred over 15-min clips
+        if (60.0..=480.0).contains(&dur) { score += 10; }
+        // mild junk penalty — demote, never delete
+        for j in ["full album", "reaction", "review", "1 hour", "10 hours", "mix -", "episode"] {
+            if t.contains(j) { score -= 30; break; }
+        }
+        // view count as a weak tiebreaker (log-ish buckets)
+        if let Some(vc) = v["view_count"].as_u64() {
+            score += (vc as f64).log10() as i64;
+        }
+
+        out.push(Scored {
+            item: SearchItem {
+                video_id: id.to_string(),
+                title: title.to_string(),
+                subtitle: if let Some(stripped) = channel.strip_suffix(" - Topic") {
+                    stripped.to_string()
+                } else { channel.to_string() },
+                thumb: last_thumb(&v),
+            },
+            score,
+        });
+    }
+    out
 }
 
-fn runs_text(v: &serde_json::Value) -> String {
-    let mut s = String::new();
-    if let Some(runs) = v.pointer("/text/runs").and_then(|r| r.as_array()) {
-        for r in runs {
-            if let Some(t) = r.get("text").and_then(|t| t.as_str()) {
-                s.push_str(t);
-            }
-        }
-    }
-    s.trim().to_string()
-}
-
-fn collect_items(v: &serde_json::Value, out: &mut Vec<SearchItem>) {
-    match v {
-        serde_json::Value::Array(a) => a.iter().for_each(|x| collect_items(x, out)),
-        serde_json::Value::Object(m) => {
-            if let Some(r) = m.get("musicResponsiveListItemRenderer") {
-                let cols = r.get("flexColumns").and_then(|c| c.as_array());
-                let title = cols
-                    .and_then(|c| c.first())
-                    .map(|c| {
-                        c.pointer("/musicResponsiveListItemFlexColumnRenderer")
-                            .map(runs_text)
-                            .unwrap_or_default()
-                    })
-                    .unwrap_or_default();
-                let subtitle = cols
-                    .and_then(|c| c.get(1))
-                    .map(|c| {
-                        c.pointer("/musicResponsiveListItemFlexColumnRenderer")
-                            .map(runs_text)
-                            .unwrap_or_default()
-                    })
-                    .unwrap_or_default();
-
-                let video_id = r
-                    .pointer("/playlistItemData/videoId")
-                    .and_then(|x| x.as_str())
-                    .map(String::from)
-                    .or_else(|| {
-                        r.pointer("/navigationEndpoint/watchEndpoint/videoId")
-                            .and_then(|x| x.as_str())
-                            .map(String::from)
-                    })
-                    .or_else(|| {
-                        r.pointer("/flexColumns/0/musicResponsiveListItemFlexColumnRenderer/text/runs/0/navigationEndpoint/watchEndpoint/videoId")
-                            .and_then(|x| x.as_str())
-                            .map(String::from)
-                    });
-
-                let thumb = r
-                    .pointer("/thumbnail/musicThumbnailRenderer/thumbnail/thumbnails")
-                    .and_then(|t| t.as_array())
-                    .and_then(|t| t.last())
-                    .and_then(|t| t.get("url"))
-                    .and_then(|u| u.as_str())
-                    .map(String::from);
-
-                if let Some(video_id) = video_id {
-                    if !title.is_empty() {
-                        out.push(SearchItem {
-                            video_id,
-                            title,
-                            subtitle,
-                            thumb,
-                        });
-                    }
-                }
-            }
-            m.values().for_each(|x| collect_items(x, out));
-        }
-        _ => {}
-    }
+fn last_thumb(v: &serde_json::Value) -> Option<String> {
+    v["thumbnails"].as_array().and_then(|t| t.last())
+        .and_then(|t| t["url"].as_str()).map(String::from)
 }
 
 #[derive(Deserialize)]

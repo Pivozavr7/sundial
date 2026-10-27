@@ -11,22 +11,27 @@ tauri-build = { version = "2", features = [] }
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri = { version = "2", features = ["dynamic-acl", "devtools"] }
+tauri = { version = "2", features = ["dynamic-acl"] }
 tauri-plugin-localhost = "2.4"
 portpicker = "0.1"
-reqwest = { version = "0.12", features = ["json"] }
+reqwest = { version = "0.12", features = ["json", "blocking"] }
+tokio = { version = "1", features = ["process"] }
 mpris-server = { version = "0.8", optional = true }
 tauri-plugin-global-shortcut = { version = "2", optional = true }
 async-channel = { version = "2", optional = true }
 futures-lite = { version = "2", optional = true }
-
+rodio = { version = "0.20", features = ["symphonia-all"] }
 [features]
 default = ["tray", "mpris", "hotkeys"]
 tray = ["tauri/tray-icon"]
 mpris = ["dep:mpris-server", "dep:async-channel", "dep:futures-lite"]
 hotkeys = ["dep:tauri-plugin-global-shortcut"]
+dev-tools = ["tauri/devtools"]
 
 [profile.release]
+opt-level = "z"
 lto = true
 codegen-units = 1
 strip = true
+panic = "abort"
+dirs = "5"

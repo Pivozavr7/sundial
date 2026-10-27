@@ -177,6 +177,54 @@
       "description": "Permission identifier",
       "oneOf": [
         {
+          "description": "Enables the audio_dur command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-dur",
+          "markdownDescription": "Enables the audio_dur command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_pause command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-pause",
+          "markdownDescription": "Enables the audio_pause command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_play command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-play",
+          "markdownDescription": "Enables the audio_play command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_pos command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-pos",
+          "markdownDescription": "Enables the audio_pos command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_resume command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-resume",
+          "markdownDescription": "Enables the audio_resume command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_seek command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-seek",
+          "markdownDescription": "Enables the audio_seek command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_stop command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-stop",
+          "markdownDescription": "Enables the audio_stop command without any pre-configured scope."
+        },
+        {
+          "description": "Enables the audio_volume command without any pre-configured scope.",
+          "type": "string",
+          "const": "allow-audio-volume",
+          "markdownDescription": "Enables the audio_volume command without any pre-configured scope."
+        },
+        {
           "description": "Enables the get_settings command without any pre-configured scope.",
           "type": "string",
           "const": "allow-get-settings",
@@ -253,6 +301,54 @@
           "type": "string",
           "const": "allow-ytm-search",
           "markdownDescription": "Enables the ytm_search command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_dur command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-dur",
+          "markdownDescription": "Denies the audio_dur command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_pause command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-pause",
+          "markdownDescription": "Denies the audio_pause command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_play command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-play",
+          "markdownDescription": "Denies the audio_play command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_pos command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-pos",
+          "markdownDescription": "Denies the audio_pos command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_resume command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-resume",
+          "markdownDescription": "Denies the audio_resume command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_seek command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-seek",
+          "markdownDescription": "Denies the audio_seek command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_stop command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-stop",
+          "markdownDescription": "Denies the audio_stop command without any pre-configured scope."
+        },
+        {
+          "description": "Denies the audio_volume command without any pre-configured scope.",
+          "type": "string",
+          "const": "deny-audio-volume",
+          "markdownDescription": "Denies the audio_volume command without any pre-configured scope."
         },
         {
           "description": "Denies the get_settings command without any pre-configured scope.",
